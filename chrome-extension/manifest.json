@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Dia Router",
-  "version": "1.0.0",
-  "description": "Send links to another Dia profile through the Dia Router macOS app.",
+  "version": "1.0.1",
+  "description": "Route links through the Dia Router macOS app.",
   "permissions": [
     "contextMenus"
   ],

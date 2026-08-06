@@ -12,6 +12,9 @@ if [[ ! -d "$source_app" ]]; then
 fi
 
 mkdir -p "$install_dir"
+if [[ -d "$installed_app" ]]; then
+    rm -rf "$installed_app"
+fi
 ditto "$source_app" "$installed_app"
 "$project_root/scripts/install-login-item.sh" "$installed_app"
 

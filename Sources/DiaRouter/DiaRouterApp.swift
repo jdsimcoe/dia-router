@@ -17,35 +17,10 @@ struct DiaRouterApp: App {
 
     var body: some Scene {
         MenuBarExtra("Dia Router", systemImage: menuBarSymbolName) {
-            Text(coordinator.lastMessage)
-                .foregroundStyle(.secondary)
-
-            Divider()
-
-            SettingsLink {
-                Label("Settings…", systemImage: "gearshape")
-            }
-
-            if DiaController.hasAccessibilityPermission {
-                Label("Accessibility Allowed", systemImage: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
-            } else {
-                Button("Request Accessibility Permission") {
-                    DiaController.requestAccessibilityPermission()
-                }
-            }
-
-            Divider()
-
-            Button("Quit Dia Router") {
-                NSApplication.shared.terminate(nil)
-            }
-        }
-
-        Settings {
-            SettingsView()
+            MenuBarContentView()
                 .environmentObject(settings)
                 .environmentObject(coordinator)
         }
+        .menuBarExtraStyle(.window)
     }
 }

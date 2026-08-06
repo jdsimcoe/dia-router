@@ -5,6 +5,7 @@ struct DiaProfile: Codable, Hashable, Identifiable {
     var name: String
     var shortcutNumber: Int
     var diaDirectory: String? = nil
+    var lastDetectedName: String? = nil
 }
 
 enum RuleMatchType: String, Codable, CaseIterable, Identifiable {
@@ -112,10 +113,25 @@ struct RouterConfiguration: Codable, Equatable {
             var profile = matchingProfile ?? DiaProfile(
                 id: UUID(),
                 name: detectedProfile.name,
-                shortcutNumber: index + 1
+                shortcutNumber: index + 1,
+                lastDetectedName: detectedProfile.name
             )
-            profile.name = detectedProfile.name
+
+            let followsDetectedName = profile.lastDetectedName == nil ||
+                profile.name.compare(
+                    profile.lastDetectedName ?? "",
+                    options: [.caseInsensitive, .diacriticInsensitive]
+                ) == .orderedSame
+            let alreadyMatchesDetection = profile.name.compare(
+                detectedProfile.name,
+                options: [.caseInsensitive, .diacriticInsensitive]
+            ) == .orderedSame
+
+            if followsDetectedName || alreadyMatchesDetection {
+                profile.name = detectedProfile.name
+            }
             profile.diaDirectory = detectedProfile.directory
+            profile.lastDetectedName = detectedProfile.name
             matchedProfileIDs.insert(profile.id)
             syncedProfiles.append(profile)
         }

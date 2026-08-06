@@ -22,6 +22,19 @@ struct RuleMatcherTests {
     }
 
     @Test
+    func faviconSourceExtractsDomainsFromRulePatterns() throws {
+        #expect(FaviconSource.domain(from: "youtube.com") == "youtube.com")
+        #expect(FaviconSource.domain(from: "https://github.com/brianlovin/*") == "github.com")
+        #expect(FaviconSource.domain(from: #"^https://(?:www\.)?x\.com"#) == "x.com")
+        #expect(FaviconSource.domain(from: "not a domain") == nil)
+        let faviconURL = FaviconSource.url(for: "meet.google.com")
+        #expect(faviconURL?.host == "www.google.com")
+        #expect(faviconURL?.path == "/s2/favicons")
+        #expect(URLComponents(url: try #require(faviconURL), resolvingAgainstBaseURL: false)?
+            .queryItems?.contains(URLQueryItem(name: "sz", value: "64")) == true)
+    }
+
+    @Test
     func urlContainsRuleIsCaseInsensitive() throws {
         let rule = RoutingRule(
             id: UUID(),
@@ -72,6 +85,17 @@ struct RuleMatcherTests {
 
         #expect(request.url.absoluteString == "https://youtu.be/abc123")
         #expect(request.forcedProfileName == "Personal")
+    }
+
+    @Test
+    func customURLWithoutAProfileUsesRoutingRules() throws {
+        let incomingURL = try #require(URL(
+            string: "dia-router://open?url=https%3A%2F%2Fx.com%2Fexample"
+        ))
+        let request = try #require(RouterCoordinator.parse(incomingURL))
+
+        #expect(request.url.absoluteString == "https://x.com/example")
+        #expect(request.forcedProfileName == nil)
     }
 
     @Test
@@ -191,5 +215,35 @@ struct RuleMatcherTests {
 
         #expect(configuration.profiles[0].shortcutNumber == 4)
         #expect(configuration.profiles[1].shortcutNumber == 2)
+    }
+
+    @Test
+    func syncingProfilesPreservesAManualNameWhenDiaMetadataIsStale() throws {
+        var configuration = RouterConfiguration.defaultConfiguration
+        configuration.syncProfiles(with: [
+            DetectedDiaProfile(directory: "Default", name: "Work"),
+            DetectedDiaProfile(directory: "Profile 1", name: "Personal"),
+            DetectedDiaProfile(directory: "Profile 2", name: "Figma"),
+        ])
+        let paintID = try #require(configuration.profiles.last?.id)
+        configuration.profiles[2].name = "Paint"
+        configuration.rules.append(RoutingRule(
+            id: UUID(),
+            isEnabled: true,
+            matchType: .domain,
+            pattern: "figma.com",
+            profileID: paintID
+        ))
+
+        configuration.syncProfiles(with: [
+            DetectedDiaProfile(directory: "Default", name: "Work"),
+            DetectedDiaProfile(directory: "Profile 1", name: "Personal"),
+            DetectedDiaProfile(directory: "Profile 2", name: "Figma"),
+        ])
+
+        #expect(configuration.profiles[2].id == paintID)
+        #expect(configuration.profiles[2].name == "Paint")
+        #expect(configuration.profiles[2].shortcutNumber == 3)
+        #expect(configuration.rules.last?.profileID == paintID)
     }
 }

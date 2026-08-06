@@ -1,6 +1,6 @@
 "use strict";
 
-const MENU_ID = "dia-router-open-other";
+const MENU_ID = "dia-router-route-link";
 
 function isWebURL(rawURL) {
   try {
@@ -12,10 +12,7 @@ function isWebURL(rawURL) {
 }
 
 function buildRouterURL(rawURL) {
-  const query = new URLSearchParams({
-    url: rawURL,
-    profile: "Other"
-  });
+  const query = new URLSearchParams({ url: rawURL });
   return `dia-router://open?${query.toString()}`;
 }
 
@@ -23,7 +20,7 @@ function installContextMenu() {
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
       id: MENU_ID,
-      title: "Open link in other Dia profile",
+      title: "Route link with Dia Router",
       contexts: ["link"],
       targetUrlPatterns: ["http://*/*", "https://*/*"]
     });

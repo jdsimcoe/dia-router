@@ -35,6 +35,18 @@ enum DiaController {
         return AXIsProcessTrustedWithOptions([promptKey: true] as CFDictionary)
     }
 
+    static func openAccessibilitySettings() {
+        // Register the currently running, signed app with TCC before opening
+        // System Settings. Opening the pane alone can leave users toggling a
+        // stale entry from an older bundle or signing identity.
+        requestAccessibilityPermission()
+
+        guard let url = URL(
+            string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+        ) else { return }
+        NSWorkspace.shared.open(url)
+    }
+
     static func route(_ url: URL, to profile: DiaProfile) async throws {
         guard let diaURL = NSWorkspace.shared.urlForApplication(
             withBundleIdentifier: diaBundleIdentifier

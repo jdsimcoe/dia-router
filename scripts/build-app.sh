@@ -18,6 +18,17 @@ fi
 
 signing_identity="${DIA_ROUTER_SIGNING_IDENTITY:-}"
 
+# Prefer a stable local Apple Development identity when one is available. This
+# keeps macOS privacy grants attached to the app across local rebuilds without
+# storing a developer's personal certificate name in the repository.
+if [[ -z "$signing_identity" ]]; then
+    signing_identity="$(
+        security find-identity -v -p codesigning 2>/dev/null |
+            sed -n 's/.*"\(Apple Development:[^"]*\)".*/\1/p' |
+            head -n 1
+    )"
+fi
+
 swift build --package-path "$project_root" -c release
 
 rm -rf "$app_bundle"

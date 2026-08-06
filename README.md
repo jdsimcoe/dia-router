@@ -4,7 +4,7 @@
 
 # Dia Router
 
-Dia Router is a small macOS menu-bar app that sends links to the right [Dia](https://www.diabrowser.com/) profile. It owns the routing rules, Dia profile mapping, default-browser handling, and an optional Chromium extension for explicitly sending a link to another profile.
+Dia Router is a small macOS menu-bar app that sends links to the right [Dia](https://www.diabrowser.com/) profile. Its menu-bar popover contains the complete rules editor and setup UI, while the optional Chromium extension routes links you click inside Dia.
 
 No signing identity, certificate, credentials, or machine-specific configuration is committed to the repository.
 
@@ -24,7 +24,9 @@ No signing identity, certificate, credentials, or machine-specific configuration
 
 Dia Router reads profile names and order from Dia's local Chromium profile state. It does not read Dia's keyboard-shortcut settings, so the shortcut numbers must be aligned in both apps.
 
-The built-in rules initially send Slack, Linear, Notion, and Google Meet to the first profile. You can edit the rules and default profile in Settings.
+The built-in rules initially send Slack, Linear, Notion, and Google Meet to the first profile. Click the menu-bar icon to edit rules, change their target profiles, enable or disable them, or add new ones. Click a rule's favicon to change its match type, move it, or delete it. The gear opens profile, shortcut, default-browser, Accessibility, and test controls inside the same popover; Dia Router has no separate Settings window.
+
+Favicons are loaded as consistently sized PNGs from Google's public favicon service when the rules popover is visible. If a favicon cannot be resolved, Dia Router shows a local globe fallback.
 
 ## Build and install
 
@@ -43,7 +45,7 @@ To launch the currently installed app and let it register its login item without
 
 ## Align Dia profile shortcuts
 
-Dia Router detects Dia profiles automatically when the app starts and whenever Settings opens. Add, remove, or rename profiles in Dia, then reopen Dia Router Settings to sync them. There is no separate **Add Profile** action in Router.
+Dia Router detects Dia profiles automatically when the app starts and whenever Settings opens. Add, remove, or rename profiles in Dia, then reopen Dia Router Settings to sync them. There is no separate **Add Profile** action in Router. Dia can occasionally lag before writing a renamed profile to its Chromium metadata; if that happens, edit the detected name directly in Router. The manual name remains attached to the same Dia profile directory and routing rules.
 
 The default mapping follows Dia's detected profile order:
 
@@ -60,7 +62,7 @@ In Dia, open **Settings → Shortcuts** and assign each profile-switching action
 
 ## First-run setup
 
-1. Open Dia Router Settings from its menu-bar icon.
+1. Click the Dia Router menu-bar icon, then click the gear.
 2. Confirm that the detected profile names and shortcut numbers match Dia.
 3. Click **Request Permission**, then allow Dia Router in **System Settings → Privacy & Security → Accessibility**.
 4. Click **Set Dia Router as Default**.
@@ -68,7 +70,7 @@ In Dia, open **Settings → Shortcuts** and assign each profile-switching action
 
 ## Install the Chrome extension
 
-The standalone Manifest V3 extension in [`chrome-extension`](chrome-extension) provides a dedicated gesture for links that should go to another Dia profile. Chromium Cleanup intentionally does not include this routing code, so the behavior remains isolated and optional.
+The standalone Manifest V3 extension in [`chrome-extension`](chrome-extension) provides a dedicated gesture for sending a clicked link through Dia Router's rules. Chromium Cleanup intentionally does not include this routing code, so the behavior remains isolated and optional.
 
 1. Build and install the Dia Router macOS app first.
 2. In Dia, open `chrome://extensions`.
@@ -79,8 +81,8 @@ The standalone Manifest V3 extension in [`chrome-extension`](chrome-extension) p
 
 Use either of these commands on an `http` or `https` link:
 
-- `Command-Shift-click` sends the link to the next Dia profile.
-- Right-click and choose **Open link in other Dia profile**.
+- `Command-Shift-click` routes the link using the first matching rule, or the default profile when no rule matches.
+- Right-click and choose **Route link with Dia Router**.
 
 The exact `Command-Shift-click` modifier avoids conflicting with Dia's `Option-click` split-tab behavior. The extension has no settings, analytics, external requests, or profile-specific names. It only passes the clicked URL to the locally installed app using the `dia-router://` protocol. Browser-internal pages do not allow content scripts, so the gesture is available on ordinary web pages only.
 
@@ -105,7 +107,7 @@ The script produces transparent 16, 32, 48, and 128 px PNGs in `chrome-extension
 
 ## Signing
 
-The repository does not contain a personal signing identity. By default, `build-app.sh` uses an ad-hoc signature so anyone can build the app without an Apple Developer account.
+The repository does not contain a personal signing identity. `build-app.sh` automatically uses the first valid Apple Development identity in the local keychain when one is available, without writing its name or certificate ID into the repository. If no identity is available, it falls back to an ad-hoc signature so anyone can still build the app without an Apple Developer account.
 
 For a stable local signature, first list the identities available in your keychain:
 
@@ -113,7 +115,7 @@ For a stable local signature, first list the identities available in your keycha
 security find-identity -v -p codesigning
 ```
 
-Then either provide the identity for one build:
+To override the automatically selected identity, provide a different identity for one build:
 
 ```sh
 DIA_ROUTER_SIGNING_IDENTITY='Apple Development: YOUR NAME (TEAMID)' ./scripts/build-app.sh

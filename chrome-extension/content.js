@@ -20,10 +20,7 @@
   }
 
   function buildRouterURL(rawURL) {
-    const query = new URLSearchParams({
-      url: rawURL,
-      profile: "Other"
-    });
+    const query = new URLSearchParams({ url: rawURL });
     return `dia-router://open?${query.toString()}`;
   }
 

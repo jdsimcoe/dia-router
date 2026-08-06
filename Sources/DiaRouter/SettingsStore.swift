@@ -38,17 +38,35 @@ final class SettingsStore: ObservableObject {
         RuleMatcher.profile(for: url, configuration: configuration)
     }
 
-    func addRule() {
-        guard let targetProfile = configuration.profiles.first else { return }
-        configuration.rules.append(
-            RoutingRule(
-                id: UUID(),
-                isEnabled: true,
-                matchType: .domain,
-                pattern: "example.com",
-                profileID: targetProfile.id
-            )
+    @discardableResult
+    func addRule() -> UUID? {
+        guard let targetProfile = configuration.profiles.first(where: {
+            $0.id == configuration.defaultProfileID
+        }) ?? configuration.profiles.first else { return nil }
+
+        let rule = RoutingRule(
+            id: UUID(),
+            isEnabled: true,
+            matchType: .domain,
+            pattern: "",
+            profileID: targetProfile.id
         )
+        configuration.rules.append(rule)
+        return rule.id
+    }
+
+    func deleteRule(id: UUID) {
+        configuration.rules.removeAll { $0.id == id }
+    }
+
+    func moveRule(id: UUID, by offset: Int) {
+        guard let sourceIndex = configuration.rules.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+
+        let destinationIndex = sourceIndex + offset
+        guard configuration.rules.indices.contains(destinationIndex) else { return }
+        configuration.rules.swapAt(sourceIndex, destinationIndex)
     }
 
     @discardableResult

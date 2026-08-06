@@ -21,6 +21,9 @@ scripts/signing.local.zsh
 .env.*
 !.env.example
 *.key
+*.cer
+*.crt
+*.der
 *.p12
 *.pfx
 *.mobileprovision
