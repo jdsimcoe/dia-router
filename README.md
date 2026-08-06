@@ -6,7 +6,7 @@
 
 Dia Router is a small macOS menu-bar app that sends links to the right [Dia](https://www.diabrowser.com/) profile. It owns the routing rules, Dia profile mapping, default-browser handling, and an optional Chromium extension for explicitly sending a link to another profile.
 
-No developer identity, signing certificate, account name, profile name, or other personal configuration is committed to the repository.
+No signing identity, certificate, credentials, or machine-specific configuration is committed to the repository.
 
 ## Requirements
 
@@ -128,6 +128,10 @@ export DIA_ROUTER_SIGNING_IDENTITY='Apple Development: YOUR NAME (TEAMID)'
 The local file is excluded by `.gitignore`. A stable signature helps macOS preserve Accessibility permission across rebuilds. After changing the signing identity, or replacing an older build that used a different bundle identifier, remove any stale Dia Router entry from Accessibility if necessary, install the rebuilt app, and grant it once more.
 
 The unpacked Chrome extension does not require signing, a private key, or a Chrome Web Store account.
+
+## License
+
+Dia Router's source code and documentation are available under the [MIT License](LICENSE). The Dia name, logo, and derived icon assets are excluded from that license and remain the property of their respective owners. This is an independent project and is not affiliated with or endorsed by Dia.
 
 ## Development
 
