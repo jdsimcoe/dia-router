@@ -4,6 +4,10 @@
 
 # Dia Router
 
+<p align="center">
+  <img src="docs/images/dia-router-menu.png" width="546" alt="Dia Router menu-bar rules editor">
+</p>
+
 Dia Router is a small macOS menu-bar app that sends links to the right [Dia](https://www.diabrowser.com/) profile. Its menu-bar popover contains the complete rules editor and setup UI, while the optional Chromium extension routes links you click inside Dia.
 
 No signing identity, certificate, credentials, or machine-specific configuration is committed to the repository.
