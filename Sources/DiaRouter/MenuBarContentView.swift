@@ -32,7 +32,8 @@ struct MenuBarContentView: View {
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }
-        .frame(width: 500)
+        .frame(minWidth: 420, minHeight: 280)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(.ultraThinMaterial)
         .onAppear {
             settings.syncProfilesFromDia()
@@ -77,6 +78,7 @@ private struct RulesMenuView: View {
 
             addRuleButton
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     private var header: some View {
@@ -128,7 +130,7 @@ private struct RulesMenuView: View {
                 systemImage: "arrow.triangle.branch",
                 description: Text("Unmatched links use the default profile.")
             )
-            .frame(height: 150)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             ScrollView {
                 LazyVStack(spacing: 0) {
@@ -155,12 +157,9 @@ private struct RulesMenuView: View {
                 }
                 .padding(.horizontal, 14)
             }
-            .frame(height: rulesListHeight)
+            .scrollIndicators(.visible)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-    }
-
-    private var rulesListHeight: CGFloat {
-        min(max(CGFloat(settings.configuration.rules.count) * 41, 82), 390)
     }
 
     private var addRuleButton: some View {
@@ -340,9 +339,12 @@ private struct MenuBarSettingsView: View {
                     resetCard
                 }
                 .padding(16)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
             }
-            .frame(height: 560)
+            .scrollIndicators(.visible)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .onAppear {
             refreshDefaultBrowserStatus()
             settings.syncProfilesFromDia()
@@ -377,8 +379,8 @@ private struct MenuBarSettingsView: View {
             .buttonStyle(.plain)
             .help("Quit Dia Router")
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 16)
+        .padding(.horizontal, 14)
+        .frame(height: 40)
     }
 
     private var statusCard: some View {
