@@ -35,10 +35,71 @@ struct RoutingRule: Codable, Hashable, Identifiable {
     var profileID: UUID
 }
 
+/// The modifier keys Dia Router holds down with a profile number. Dia lets you
+/// choose the modifiers for its own profile-switching shortcuts, so Router has
+/// to send whichever combination Dia listens for.
+enum ProfileShortcutModifier: String, Codable, CaseIterable, Identifiable {
+    case commandOption
+    case control
+    case controlOption
+    case controlCommand
+    case commandShift
+
+    var id: String { rawValue }
+
+    /// Modifier symbols in the order macOS uses: control, option, shift, command.
+    var symbols: String {
+        switch self {
+        case .commandOption:
+            "⌥⌘"
+        case .control:
+            "⌃"
+        case .controlOption:
+            "⌃⌥"
+        case .controlCommand:
+            "⌃⌘"
+        case .commandShift:
+            "⇧⌘"
+        }
+    }
+
+    func label(for number: Int) -> String {
+        "\(symbols)\(number)"
+    }
+}
+
 struct RouterConfiguration: Codable, Equatable {
     var profiles: [DiaProfile]
     var rules: [RoutingRule]
     var defaultProfileID: UUID
+    var shortcutModifier: ProfileShortcutModifier = .commandOption
+
+    // A configuration saved before the modifier was configurable has no
+    // shortcutModifier key, and one saved by a later version may name a
+    // modifier this version does not know. Fall back to the previous fixed
+    // combination in both cases rather than failing to decode, which would
+    // discard every saved profile and rule.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        profiles = try container.decode([DiaProfile].self, forKey: .profiles)
+        rules = try container.decode([RoutingRule].self, forKey: .rules)
+        defaultProfileID = try container.decode(UUID.self, forKey: .defaultProfileID)
+        shortcutModifier = try container
+            .decodeIfPresent(String.self, forKey: .shortcutModifier)
+            .flatMap(ProfileShortcutModifier.init(rawValue:)) ?? .commandOption
+    }
+
+    init(
+        profiles: [DiaProfile],
+        rules: [RoutingRule],
+        defaultProfileID: UUID,
+        shortcutModifier: ProfileShortcutModifier = .commandOption
+    ) {
+        self.profiles = profiles
+        self.rules = rules
+        self.defaultProfileID = defaultProfileID
+        self.shortcutModifier = shortcutModifier
+    }
 
     static let workProfileID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
     static let personalProfileID = UUID(uuidString: "22222222-2222-2222-2222-222222222222")!

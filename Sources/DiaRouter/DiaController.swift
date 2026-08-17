@@ -47,7 +47,11 @@ enum DiaController {
         NSWorkspace.shared.open(url)
     }
 
-    static func route(_ url: URL, to profile: DiaProfile) async throws {
+    static func route(
+        _ url: URL,
+        to profile: DiaProfile,
+        using modifier: ProfileShortcutModifier
+    ) async throws {
         guard let diaURL = NSWorkspace.shared.urlForApplication(
             withBundleIdentifier: diaBundleIdentifier
         ) else {
@@ -72,7 +76,11 @@ enum DiaController {
         }
 
         try await Task.sleep(for: .milliseconds(180))
-        try sendProfileShortcut(profile.shortcutNumber, to: diaApplication.processIdentifier)
+        try sendProfileShortcut(
+            profile.shortcutNumber,
+            using: modifier,
+            to: diaApplication.processIdentifier
+        )
         try await Task.sleep(for: .milliseconds(260))
         try await open(url, inDiaAt: diaURL)
     }
@@ -117,7 +125,11 @@ enum DiaController {
         }
     }
 
-    private static func sendProfileShortcut(_ number: Int, to processID: pid_t) throws {
+    private static func sendProfileShortcut(
+        _ number: Int,
+        using modifier: ProfileShortcutModifier,
+        to processID: pid_t
+    ) throws {
         let keyCodes: [Int: CGKeyCode] = [
             1: 18,
             2: 19,
@@ -147,9 +159,26 @@ enum DiaController {
             throw DiaControllerError.couldNotCreateKeyboardEvent
         }
 
-        keyDown.flags = [.maskCommand, .maskAlternate]
-        keyUp.flags = [.maskCommand, .maskAlternate]
+        keyDown.flags = modifier.eventFlags
+        keyUp.flags = modifier.eventFlags
         keyDown.postToPid(processID)
         keyUp.postToPid(processID)
+    }
+}
+
+private extension ProfileShortcutModifier {
+    var eventFlags: CGEventFlags {
+        switch self {
+        case .commandOption:
+            [.maskCommand, .maskAlternate]
+        case .control:
+            [.maskControl]
+        case .controlOption:
+            [.maskControl, .maskAlternate]
+        case .controlCommand:
+            [.maskControl, .maskCommand]
+        case .commandShift:
+            [.maskCommand, .maskShift]
+        }
     }
 }

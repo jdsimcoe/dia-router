@@ -430,7 +430,8 @@ private struct MenuBarSettingsView: View {
 
                     Picker("Shortcut", selection: $profile.shortcutNumber) {
                         ForEach(1...9, id: \.self) { number in
-                            Text("⌘⌥\(number)").tag(number)
+                            Text(settings.configuration.shortcutModifier.label(for: number))
+                                .tag(number)
                         }
                     }
                     .labelsHidden()
@@ -457,6 +458,18 @@ private struct MenuBarSettingsView: View {
 
             cardDivider
 
+            settingsRow("Shortcut modifier") {
+                Picker("Shortcut modifier", selection: $settings.configuration.shortcutModifier) {
+                    ForEach(ProfileShortcutModifier.allCases) { modifier in
+                        Text(modifier.symbols).tag(modifier)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 140)
+            }
+
+            cardDivider
+
             HStack(spacing: 7) {
                 Image(systemName: settings.diaProfilesDetected
                     ? "checkmark.circle.fill"
@@ -470,7 +483,7 @@ private struct MenuBarSettingsView: View {
             .font(.caption)
             .foregroundStyle(settings.diaProfilesDetected ? Color.secondary : Color.orange)
 
-            Text("Profile shortcuts must match Dia → Settings → Shortcuts. Names can be edited when Dia's local metadata has not caught up with a rename.")
+            Text("Profile numbers and the modifier must match Dia → Settings → Shortcuts. Names can be edited when Dia's local metadata has not caught up with a rename.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

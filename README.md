@@ -26,7 +26,7 @@ No signing identity, certificate, credentials, or machine-specific configuration
 3. Dia Router activates Dia and invokes the shortcut assigned to that profile.
 4. It opens the original URL explicitly in Dia, avoiding a default-browser loop.
 
-Dia Router reads profile names and order from Dia's local Chromium profile state. It does not read Dia's keyboard-shortcut settings, so the shortcut numbers must be aligned in both apps.
+Dia Router reads profile names and order from Dia's local Chromium profile state. It does not read Dia's keyboard-shortcut settings, so the shortcut numbers and their modifier must be aligned in both apps.
 
 The built-in rules initially send Slack, Linear, Notion, and Google Meet to the first profile. Click the menu-bar icon to edit rules, change their target profiles, enable or disable them, or add new ones. Click a rule's favicon to change its match type, move it, or delete it. The gear opens profile, shortcut, default-browser, Accessibility, and test controls inside the same popover; Dia Router has no separate Settings window.
 
@@ -53,21 +53,26 @@ Dia Router detects Dia profiles automatically when the app starts and whenever S
 
 The default mapping follows Dia's detected profile order:
 
-| Dia profile order | Expected Dia shortcut | Router setting |
+| Dia profile order | Dia shortcut | Router setting |
 | --- | --- | --- |
-| First profile | `⌘⌥1` | `⌘⌥1` |
-| Second profile | `⌘⌥2` | `⌘⌥2` |
-| Third profile | `⌘⌥3` | `⌘⌥3` |
-| Fourth through ninth | `⌘⌥4` through `⌘⌥9` | Matching number |
+| First profile | Modifier + `1` | `1` |
+| Second profile | Modifier + `2` | `2` |
+| Third profile | Modifier + `3` | `3` |
+| Fourth through ninth | Modifier + `4` through `9` | Matching number |
 
-In Dia, open **Settings → Shortcuts** and assign each profile-switching action to `Command-Option-1` through `Command-Option-9` in the same order shown in Dia Router. If you later use a different number for a profile, change that profile's shortcut picker in Router to match. Dia Router supports up to nine shortcut-mapped profiles.
+In Dia, open **Settings → Shortcuts** and note the shortcut assigned to each profile-switching action, in the same order shown in Dia Router. Then set Dia Router to match:
+
+- The number belongs to each profile's shortcut picker in the **Dia Profiles** card.
+- The modifier is shared by every profile and is chosen once, in the same card. Dia Router offers `⌥⌘`, `⌃`, `⌃⌥`, `⌃⌘`, and `⇧⌘`, and defaults to `⌥⌘`.
+
+Dia Router presses that combination, so Dia keeps whichever profile shortcuts you prefer. Change the picker in Router rather than rebinding Dia. Dia Router supports up to nine shortcut-mapped profiles.
 
 `profile=Other` selects the profile after the currently active Dia profile. With two profiles it toggles between them; with three or more it advances through the detected order.
 
 ## First-run setup
 
 1. Click the Dia Router menu-bar icon, then click the gear.
-2. Confirm that the detected profile names and shortcut numbers match Dia.
+2. Confirm that the detected profile names, shortcut numbers, and shortcut modifier match Dia.
 3. Click **Request Permission**, then allow Dia Router in **System Settings → Privacy & Security → Accessibility**.
 4. Click **Set Dia Router as Default**.
 5. Use **Test Routing** to preview and open a URL before relying on the rules day to day.
