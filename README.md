@@ -16,8 +16,9 @@ No signing identity, certificate, credentials, or machine-specific configuration
 
 - macOS 14 or later
 - Dia installed with at least one profile
-- Xcode Command Line Tools, or Xcode, for building the app
-- ImageMagick only if you want to regenerate the checked-in Chrome extension PNG icons
+- Xcode Command Line Tools for building the app
+- Xcode 26 or later only if you want to recompile the Icon Composer app icon; without it the build uses the checked-in `Resources/Dia Router.icns`
+- ImageMagick only if you want to regenerate the checked-in app or Chrome extension icons
 
 ## How routing works
 
@@ -98,16 +99,17 @@ dia-router://open?url=https%3A%2F%2Fexample.com&profile=Personal
 
 Profile names are matched case-insensitively. Use `profile=Other` for the next profile without hard-coding a name.
 
-## Extension icons
+## Icons
 
-The checked-in PNG extension icons are generated from [`Resources/Dia Router.icon/Assets/dia.svg`](Resources/Dia%20Router.icon/Assets/dia.svg), which remains the single SVG source of truth:
+Every checked-in icon is generated from [`Resources/Dia Router.icon/Assets/dia.svg`](Resources/Dia%20Router.icon/Assets/dia.svg), which remains the single SVG source of truth:
 
 ```sh
 brew install imagemagick
 ./scripts/generate-extension-icons.sh
+./scripts/generate-app-icns.sh
 ```
 
-The script produces transparent 16, 32, 48, and 128 px PNGs in `chrome-extension/icons`.
+The first script produces transparent 16, 32, 48, and 128 px PNGs in `chrome-extension/icons`. The second produces `Resources/Dia Router.icns`, which [`scripts/build-app.sh`](scripts/build-app.sh) copies into the app bundle when `actool` is unavailable. That `.icns` is a flat approximation of [`Resources/Dia Router.icon`](Resources/Dia%20Router.icon): it cannot carry the Icon Composer glass, specular, and dark or tinted specializations, so builds on Xcode 26 or later compile the `.icon` bundle instead.
 
 ## Signing
 
