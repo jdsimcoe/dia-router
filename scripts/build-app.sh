@@ -11,6 +11,7 @@ login_item_bundle="$contents_dir/Library/LoginItems/Dia Router.app"
 login_item_contents="$login_item_bundle/Contents"
 login_item_resources="$login_item_contents/Resources"
 icon_source="$project_root/Resources/Dia Router.icon"
+fallback_icns="$project_root/Resources/Dia Router.icns"
 
 if [[ -f "$local_signing_config" ]]; then
     source "$local_signing_config"
@@ -39,8 +40,12 @@ mkdir -p "$login_item_contents/MacOS"
 cp "$project_root/.build/release/DiaRouterLoginItem" "$login_item_contents/MacOS/Dia Router Login Item"
 cp "$project_root/Resources/LoginItem-Info.plist" "$login_item_contents/Info.plist"
 
-if [[ -d "$icon_source" ]]; then
-    mkdir -p "$resources_dir"
+mkdir -p "$resources_dir"
+
+# actool ships only with full Xcode, and this Icon Composer icon additionally
+# needs Xcode 26 or later. Fall back to the checked-in icon so a machine with
+# only the Command Line Tools still produces a complete, signed app.
+if [[ -d "$icon_source" ]] && xcrun --find actool >/dev/null 2>&1; then
     xcrun actool "$icon_source" \
         --compile "$resources_dir" \
         --platform macosx \
@@ -49,7 +54,14 @@ if [[ -d "$icon_source" ]]; then
         --app-icon "Dia Router" \
         --include-all-app-icons \
         --output-partial-info-plist "$project_root/build/icon-info.plist"
+elif [[ -f "$fallback_icns" ]]; then
+    cp "$fallback_icns" "$resources_dir/Dia Router.icns"
+    echo "actool is unavailable; used the checked-in Resources/Dia Router.icns."
+else
+    echo "Warning: no app icon was compiled or copied." >&2
+fi
 
+if [[ -f "$resources_dir/Dia Router.icns" ]]; then
     mkdir -p "$login_item_resources"
     cp "$resources_dir/Dia Router.icns" "$login_item_resources/Dia Router.icns"
 fi
