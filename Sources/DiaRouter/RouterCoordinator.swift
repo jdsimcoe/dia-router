@@ -58,7 +58,11 @@ final class RouterCoordinator: ObservableObject {
 
         Task {
             do {
-                try await DiaController.route(nextRoute.url, to: nextRoute.profile)
+                try await DiaController.route(
+                    nextRoute.url,
+                    to: nextRoute.profile,
+                    using: SettingsStore.shared.configuration.shortcutModifier
+                )
                 lastMessage = "Opened in \(nextRoute.profile.name)"
             } catch {
                 lastMessage = error.localizedDescription
